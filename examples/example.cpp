@@ -1,20 +1,3 @@
-# DLLInject
-
-Inject a DLL into a windows process.
-
-## Build
-
-```
-mkdir build
-cd build
-cmake ..
-```
-
-## How to use
-
-See also `/examples` folder.
-
-```c++
 #include "DLLInject.hpp"
 
 int main(int argc, char** argv)
@@ -23,4 +6,3 @@ int main(int argc, char** argv)
     injector.run();
     return 0;
 }
-```
