@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <string>
-#include <windows.h>
+#include <Windows.h>
 
 /**
  * @brief Opens a windows application and injects an external DLL into the process.

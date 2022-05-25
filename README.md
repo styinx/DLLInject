@@ -8,11 +8,10 @@ Inject a DLL into a windows process.
 mkdir build
 cd build
 cmake ..
+cmake --build . --config Release
 ```
 
 ## How to use
-
-See also `/examples` folder.
 
 ```c++
 #include "DLLInject.hpp"
