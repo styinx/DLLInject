@@ -1,4 +1,4 @@
-#include "DLLInject.hpp"
+#include "../include/DLLInject.hpp"
 
 #include "tlhelp32.h"
 

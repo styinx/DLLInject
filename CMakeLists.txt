@@ -1,24 +1,16 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.21)
 project(DLLInject)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
-include_directories(source)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PROJECT_SOURCE_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PROJECT_SOURCE_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PROJECT_SOURCE_DIR})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PROJECT_SOURCE_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PROJECT_SOURCE_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_SOURCE_DIR})
 
-# Point to the path were the static library is built
-link_directories(./cmake-build-debug)
-
-# ---
-
-# Example from source files
-add_executable(example examples/example.cpp source/DLLInject.cpp)
-
-# Example with header only
-add_executable(example_headeronly examples/example_headeronly.cpp)
-
-# Example with linking
-add_executable(example_linked examples/example.cpp)
-target_link_libraries(example_linked -ldllinject)
+include_directories(include)
 
 # Build the library
 add_library(dllinject STATIC source/DLLInject.cpp)
