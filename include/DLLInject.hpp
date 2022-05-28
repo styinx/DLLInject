@@ -54,6 +54,8 @@ public:
         const std::string&& dll_name,
         const std::uint32_t poll_interval = 1000);
 
+    virtual ~DLLInject();
+
     /**
      * @brief Starts the injection process (blocking function).
      */
