@@ -12,6 +12,12 @@ DLLInject::DLLInject(const std::string&& process_name, const std::string&& dll_n
 {
 }
 
+DLLInject::~DLLInject()
+{
+    if(m_process_handle)
+        CloseHandle(m_process_handle);
+}
+
 void DLLInject::run()
 {
     getPID();
