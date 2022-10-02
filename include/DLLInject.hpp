@@ -45,24 +45,26 @@ private:
 
 public:
     /**
-     * @brief Takes all necessary parameters to inject the DLL into another process.
+     * @brief   Takes all necessary parameters to inject the DLL into another process.
+     * 
      * @param process_name      Name of the process ("myProgram.exe")
      * @param dll_name          Path and name to the DLL ("C:/myDLLs/myDLL.dll").
      * @param poll_interval     Poll interval to refresh process list (in ms).
+     * @param timeout           Maximum time in milliseconds to wait for the injections process.
+     *                          Defaults to -1 indicating no timeout.
      */
     explicit DLLInject(
         const std::string&& process_name,
         const std::string&& dll_name,
-        const std::uint32_t poll_interval = 1000);
+        const std::uint32_t poll_interval = 1000,
+        const std::uint32_t timeout = -1);
 
     virtual ~DLLInject();
 
     /**
      * @brief Starts the injection process (blocking function).
-     * @param timeout   Maximum time in milliseconds to wait for the injections process.
-     *                  Defaults to -1 indicating no timeout.
      */
-    void run(const std::uint32_t timeout = -1);
+    void run();
 };
 
 #endif  // DLLINJECT_HPP

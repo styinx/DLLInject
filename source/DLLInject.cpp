@@ -2,14 +2,18 @@
 
 #include "tlhelp32.h"
 
-DLLInject::DLLInject(const std::string&& process_name, const std::string&& dll_name, const std::uint32_t poll_interval)
+DLLInject::DLLInject(
+    const std::string&& process_name,
+    const std::string&& dll_name,
+    const std::uint32_t poll_interval,
+    const std::uint32_t timeout)
     : m_process_handle(nullptr)
     , m_process_pid(0)
     , m_process_name(process_name)
     , m_dll_name(dll_name)
     , m_dll_address(nullptr)
     , m_poll_interval(poll_interval)
-    , m_timeout(-1)
+    , m_timeout(timeout)
 {
 }
 
@@ -19,9 +23,8 @@ DLLInject::~DLLInject()
         CloseHandle(m_process_handle);
 }
 
-void DLLInject::run(const std::uint32_t timeout)
+void DLLInject::run()
 {
-    m_timeout = timeout;
     getPID();
     openProcess();
     allocate();
@@ -33,7 +36,7 @@ void DLLInject::getPID()
     std::uint32_t timer = 0;
     while(m_process_pid == 0)
     {
-        if(m_timeout < timer)
+        if(m_timeout > -1 && timer > m_timeout)
             break;
 
         HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
