@@ -9,6 +9,7 @@ DLLInject::DLLInject(const std::string&& process_name, const std::string&& dll_n
     , m_dll_name(dll_name)
     , m_dll_address(nullptr)
     , m_poll_interval(poll_interval)
+    , m_timeout(-1)
 {
 }
 
@@ -18,8 +19,9 @@ DLLInject::~DLLInject()
         CloseHandle(m_process_handle);
 }
 
-void DLLInject::run()
+void DLLInject::run(const std::uint32_t timeout)
 {
+    m_timeout = timeout;
     getPID();
     openProcess();
     allocate();
@@ -28,7 +30,8 @@ void DLLInject::run()
 
 void DLLInject::getPID()
 {
-    while(m_process_pid == 0)
+    std::uint32_t timer = 0;
+    while(m_process_pid == 0 && m_timeout < timer)
     {
         HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
         if(hSnap == INVALID_HANDLE_VALUE)
@@ -52,6 +55,7 @@ void DLLInject::getPID()
 
         CloseHandle(hSnap);
         Sleep(m_poll_interval);
+        timer += m_poll_interval;
     }
 }
 
