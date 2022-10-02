@@ -17,6 +17,7 @@ private:
     std::string   m_dll_name;
     void*         m_dll_address;
     std::uint32_t m_poll_interval;
+    std::uint32_t m_timeout;
 
     /**
      * @brief   Polls windows process names until the name of the target executable is found.
@@ -54,10 +55,14 @@ public:
         const std::string&& dll_name,
         const std::uint32_t poll_interval = 1000);
 
+    virtual ~DLLInject();
+
     /**
      * @brief Starts the injection process (blocking function).
+     * @param timeout   Maximum time in milliseconds to wait for the injections process.
+     *                  Defaults to -1 indicating no timeout.
      */
-    void run();
+    void run(const std::uint32_t timeout = -1);
 };
 
 #endif  // DLLINJECT_HPP
