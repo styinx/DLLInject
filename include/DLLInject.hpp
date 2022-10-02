@@ -57,7 +57,7 @@ public:
         const std::string&& process_name,
         const std::string&& dll_name,
         const std::uint32_t poll_interval = 1000,
-        const std::uint32_t timeout = -1);
+        const std::uint32_t timeout = 0);
 
     virtual ~DLLInject();
 

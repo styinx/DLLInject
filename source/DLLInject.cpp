@@ -36,7 +36,7 @@ void DLLInject::getPID()
     std::uint32_t timer = 0;
     while(m_process_pid == 0)
     {
-        if(m_timeout > -1 && timer > m_timeout)
+        if(m_timeout > 0 && timer > m_timeout)
             break;
 
         HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
