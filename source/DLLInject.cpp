@@ -1,4 +1,4 @@
-#include "../include/DLLInject.hpp"
+#include "DLLInject.hpp"
 
 #include "tlhelp32.h"
 
@@ -15,6 +15,7 @@ DLLInject::DLLInject(
     , m_poll_interval(poll_interval)
     , m_timeout(timeout)
 {
+    freopen("dllinject.txt", "w", stdout); 
 }
 
 DLLInject::~DLLInject()
@@ -25,19 +26,25 @@ DLLInject::~DLLInject()
 
 void DLLInject::run()
 {
+    printf("Start DLLinject\n");
     getPID();
     openProcess();
     allocate();
     startRemoteThread();
+    printf("Finished DLLinject\n");
 }
 
 void DLLInject::getPID()
 {
+    printf("- Get PID ... ");
     std::uint32_t timer = 0;
     while(m_process_pid == 0)
     {
         if(m_timeout > 0 && timer > m_timeout)
+        {
+            printf("Stopped with timeout\n");
             break;
+        }
 
         HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
         if(hSnap == INVALID_HANDLE_VALUE)
@@ -63,15 +70,22 @@ void DLLInject::getPID()
         Sleep(m_poll_interval);
         timer += m_poll_interval;
     }
+
+    if(m_process_pid != 0)
+    {
+        printf("%d\n", m_process_pid);
+    }
 }
 
 void DLLInject::openProcess()
 {
+    printf("- Open Process\n");
     m_process_handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_process_pid);
 }
 
 void DLLInject::allocate()
 {
+    printf("- Allocate Memory\n");
     m_dll_address = VirtualAllocEx(
         m_process_handle,
         nullptr,
@@ -82,11 +96,13 @@ void DLLInject::allocate()
     if(m_dll_address == nullptr)
         return;
 
+    printf("- Write DLL Address\n");
     WriteProcessMemory(m_process_handle, m_dll_address, m_dll_name.data(), m_dll_name.size() + 1, nullptr);
 }
 
 void DLLInject::startRemoteThread()
 {
+    printf("- Start Remote Thread with '%s'\n", m_dll_name.c_str());
     HANDLE remote_thread = CreateRemoteThread(
         m_process_handle,
         nullptr,
