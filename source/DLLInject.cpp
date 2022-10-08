@@ -1,6 +1,9 @@
 #include "DLLInject.hpp"
 
-#include "tlhelp32.h"
+#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/spdlog.h"
+
+#include <tlhelp32.h>
 
 DLLInject::DLLInject(
     const std::string&& process_name,
@@ -8,47 +11,58 @@ DLLInject::DLLInject(
     const std::uint32_t poll_interval,
     const std::uint32_t timeout)
     : m_process_handle(nullptr)
-    , m_process_pid(0)
+    , m_process_id(0)
     , m_process_name(process_name)
     , m_dll_name(dll_name)
     , m_dll_address(nullptr)
     , m_poll_interval(poll_interval)
     , m_timeout(timeout)
 {
-    freopen("dllinject.txt", "w", stdout); 
+    auto logger = spdlog::basic_logger_mt("log_dll_inject", "DLLInject.log");
+    spdlog::set_level(spdlog::level::info);
+    spdlog::register_logger(logger);
+
+    logger->debug("Start Injector");
 }
 
 DLLInject::~DLLInject()
 {
     if(m_process_handle)
         CloseHandle(m_process_handle);
+
+    spdlog::get("log_dll_inject")->debug("Stop Injector");
 }
 
 void DLLInject::run()
 {
-    printf("Start DLLinject\n");
-    getPID();
-    openProcess();
-    allocate();
-    startRemoteThread();
-    printf("Finished DLLinject\n");
+    auto logger = spdlog::get("log_dll_inject");
+
+    logger->debug("Run Injector");
+    if(getPID())
+        if(openProcess())
+            if(allocate())
+                startRemoteThread();
+
+    logger->debug("Finished Injector");
 }
 
-void DLLInject::getPID()
+bool DLLInject::getPID()
 {
-    printf("- Get PID ... ");
+    auto logger = spdlog::get("log_dll_inject");
+
+    logger->debug(" - Get PID");
     std::uint32_t timer = 0;
-    while(m_process_pid == 0)
+    while(m_process_id == 0)
     {
         if(m_timeout > 0 && timer > m_timeout)
         {
-            printf("Stopped with timeout\n");
+            logger->debug(" -> Stopped with timeout");
             break;
         }
 
         HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
         if(hSnap == INVALID_HANDLE_VALUE)
-            return;
+            return false;
 
         PROCESSENTRY32 procEntry{};
         procEntry.dwSize = sizeof(PROCESSENTRY32);
@@ -60,7 +74,7 @@ void DLLInject::getPID()
                 std::string process = procEntry.szExeFile;
                 if(process == m_process_name)
                 {
-                    m_process_pid = procEntry.th32ProcessID;
+                    m_process_id = procEntry.th32ProcessID;
                     break;
                 }
             } while(Process32Next(hSnap, &procEntry));
@@ -71,21 +85,26 @@ void DLLInject::getPID()
         timer += m_poll_interval;
     }
 
-    if(m_process_pid != 0)
-    {
-        printf("%d\n", m_process_pid);
-    }
+    bool success = m_process_id != 0;
+
+    if(success)
+        logger->debug(" -> PID: %d", m_process_id);
+
+    return success;
 }
 
-void DLLInject::openProcess()
+bool DLLInject::openProcess()
 {
-    printf("- Open Process\n");
-    m_process_handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_process_pid);
+    spdlog::get("log_dll_inject")->debug(" - Open Process");
+    m_process_handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_process_id);
+    return m_process_handle != nullptr;
 }
 
-void DLLInject::allocate()
+bool DLLInject::allocate()
 {
-    printf("- Allocate Memory\n");
+    auto logger = spdlog::get("log_dll_inject");
+
+    logger->debug(" - Allocating Memory");
     m_dll_address = VirtualAllocEx(
         m_process_handle,
         nullptr,
@@ -94,15 +113,21 @@ void DLLInject::allocate()
         PAGE_READWRITE);
 
     if(m_dll_address == nullptr)
-        return;
+        return false;
 
-    printf("- Write DLL Address\n");
-    WriteProcessMemory(m_process_handle, m_dll_address, m_dll_name.data(), m_dll_name.size() + 1, nullptr);
+    logger->debug(" - Writing DLL Address\n");
+    return WriteProcessMemory(
+               m_process_handle,
+               m_dll_address,
+               m_dll_name.data(),
+               m_dll_name.size() + 1,
+               nullptr) == TRUE;
 }
 
-void DLLInject::startRemoteThread()
+bool DLLInject::startRemoteThread()
 {
-    printf("- Start Remote Thread with '%s'\n", m_dll_name.c_str());
+    spdlog::get("log_dll_inject")->debug(" - Start Remote Thread with '%s'", m_dll_name.c_str());
+
     HANDLE remote_thread = CreateRemoteThread(
         m_process_handle,
         nullptr,
@@ -112,6 +137,10 @@ void DLLInject::startRemoteThread()
         0,
         nullptr);
 
-    if(remote_thread != nullptr && remote_thread != INVALID_HANDLE_VALUE)
+    bool success = remote_thread != nullptr && remote_thread != INVALID_HANDLE_VALUE;
+
+    if(success)
         CloseHandle(remote_thread);
+
+    return success;
 }

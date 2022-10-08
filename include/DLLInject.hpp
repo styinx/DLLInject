@@ -12,7 +12,7 @@ class DLLInject
 {
 private:
     HANDLE        m_process_handle;
-    std::uint32_t m_process_pid;
+    std::uint32_t m_process_id;
     std::string   m_process_name;
     std::string   m_dll_name;
     void*         m_dll_address;
@@ -21,27 +21,34 @@ private:
 
     /**
      * @brief   Polls windows process names until the name of the target executable is found.
-     *          Polls with a fixed 1 second interval.
+     * 
+     * @return  Result of getting the PID target process.
      */
-    void getPID();
+    bool getPID();
 
     /**
      * @brief   Opens the process and stores its handle.
      *          Execute this function only after the PID is found.
+     * 
+     * @return  Result of opening the target process.
      */
-    void openProcess();
+    bool openProcess();
 
     /**
      * @brief   Allocates memory in the target process and stores the name of the DLL in the opened
      *          process.
+     * 
+     * @return  Result of the memory allocation in the target process.
      */
-    void allocate();
+    bool allocate();
 
     /**
      * @brief   Calls a thread in the target process and loads the DLL. Once the DLL is injected
-     *          the program stops
+     *          the program stops.
+     * 
+     * @return  Result of starting a remote thread in the target process.
      */
-    void startRemoteThread();
+    bool startRemoteThread();
 
 public:
     /**

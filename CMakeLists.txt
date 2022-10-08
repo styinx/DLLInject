@@ -10,7 +10,11 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PROJECT_SOURCE_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PROJECT_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_SOURCE_DIR})
 
-include_directories(include)
+add_subdirectory(spdlog)
+
+include_directories(
+	include/
+	spdlog/include/)
 
 # Build the library
 add_library(dllinject STATIC source/DLLInject.cpp)
