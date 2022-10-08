@@ -18,9 +18,8 @@ DLLInject::DLLInject(
     , m_poll_interval(poll_interval)
     , m_timeout(timeout)
 {
-    auto logger = spdlog::basic_logger_mt("log_dll_inject", "DLLInject.log");
+    auto logger = spdlog::basic_logger_mt("log_dll_inject", "DLLInject.log", true);
     spdlog::set_level(spdlog::level::info);
-    spdlog::register_logger(logger);
 
     logger->debug("Start Injector");
 }
