@@ -87,7 +87,7 @@ bool DLLInject::getPID()
     bool success = m_process_id != 0;
 
     if(success)
-        logger->debug(" -> PID: %d", m_process_id);
+        logger->debug(" -> PID: {}", m_process_id);
 
     return success;
 }
@@ -114,7 +114,7 @@ bool DLLInject::allocate()
     if(m_dll_address == nullptr)
         return false;
 
-    logger->debug(" - Writing DLL Address\n");
+    logger->debug(" - Writing DLL Address");
     return WriteProcessMemory(
                m_process_handle,
                m_dll_address,
@@ -125,7 +125,7 @@ bool DLLInject::allocate()
 
 bool DLLInject::startRemoteThread()
 {
-    spdlog::get("log_dll_inject")->debug(" - Start Remote Thread with '%s'", m_dll_name.c_str());
+    spdlog::get("log_dll_inject")->debug(" - Start Remote Thread with '{}'", m_dll_name.c_str());
 
     HANDLE remote_thread = CreateRemoteThread(
         m_process_handle,
