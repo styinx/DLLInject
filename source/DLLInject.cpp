@@ -37,7 +37,7 @@ void DLLInject::run()
     auto logger = spdlog::get("log_dll_inject");
 
     logger->debug("Run Injector");
-    if(getPID())
+    if(findPID())
         if(openProcess())
             if(allocate())
                 startRemoteThread();
@@ -45,7 +45,7 @@ void DLLInject::run()
     logger->debug("Finished Injector");
 }
 
-bool DLLInject::getPID()
+bool DLLInject::findPID()
 {
     auto logger = spdlog::get("log_dll_inject");
 

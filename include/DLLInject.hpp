@@ -24,7 +24,7 @@ private:
      * 
      * @return  Result of getting the PID target process.
      */
-    bool getPID();
+    bool findPID();
 
     /**
      * @brief   Opens the process and stores its handle.
