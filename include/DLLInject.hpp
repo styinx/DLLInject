@@ -6,16 +6,24 @@
 #include <Windows.h>
 
 /**
+ * @brief Stores properties of the process that was injected.
+ */
+struct ProcessInfo
+{
+    void*  dll_address = nullptr;
+    HANDLE process_handle = nullptr;
+    DWORD  process_id = 0;
+};
+
+/**
  * @brief Opens a windows application and injects an external DLL into the process.
  */
 class DLLInject
 {
 private:
-    HANDLE        m_process_handle;
-    std::uint32_t m_process_id;
+    ProcessInfo   m_info;
     std::string   m_process_name;
     std::string   m_dll_name;
-    void*         m_dll_address;
     std::uint32_t m_poll_interval;
     std::uint32_t m_timeout;
 
@@ -40,7 +48,14 @@ private:
      * 
      * @return  Result of the memory allocation in the target process.
      */
-    bool allocate();
+    bool allocateDLLSpace();
+
+    /**
+     * @brief   Injects the DLL into the process at the allocated memory region.
+     *
+     * @return  Result of injection.
+     */
+    bool injectDLL();
 
     /**
      * @brief   Calls a thread in the target process and loads the DLL. Once the DLL is injected
