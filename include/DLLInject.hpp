@@ -1,18 +1,21 @@
 #ifndef DLLINJECT_HPP
 #define DLLINJECT_HPP
 
+#include <Windows.h>
 #include <cstdint>
 #include <string>
-#include <Windows.h>
+
+using Uint32 = std::uint32_t;
+using String = std::string;
 
 /**
  * @brief Stores properties of the process that was injected.
  */
 struct ProcessInfo
 {
-    void*  dll_address = nullptr;
+    void*  dll_address    = nullptr;
     HANDLE process_handle = nullptr;
-    DWORD  process_id = 0;
+    DWORD  process_id     = 0;
 };
 
 /**
@@ -21,15 +24,15 @@ struct ProcessInfo
 class DLLInject
 {
 private:
-    ProcessInfo   m_info;
-    std::string   m_process_name;
-    std::string   m_dll_name;
-    std::uint32_t m_poll_interval;
-    std::uint32_t m_timeout;
+    ProcessInfo m_info;
+    String      m_process_name;
+    String      m_dll_name;
+    Uint32      m_poll_interval;
+    Uint32      m_timeout;
 
     /**
      * @brief   Polls windows process names until the name of the target executable is found.
-     * 
+     *
      * @return  Result of getting the PID target process.
      */
     bool findPID();
@@ -37,7 +40,7 @@ private:
     /**
      * @brief   Opens the process and stores its handle.
      *          Execute this function only after the PID is found.
-     * 
+     *
      * @return  Result of opening the target process.
      */
     bool openProcess();
@@ -45,7 +48,7 @@ private:
     /**
      * @brief   Allocates memory in the target process and stores the name of the DLL in the opened
      *          process.
-     * 
+     *
      * @return  Result of the memory allocation in the target process.
      */
     bool allocateDLLSpace();
@@ -60,7 +63,7 @@ private:
     /**
      * @brief   Calls a thread in the target process and loads the DLL. Once the DLL is injected
      *          the program stops.
-     * 
+     *
      * @return  Result of starting a remote thread in the target process.
      */
     bool startRemoteThread();
@@ -68,7 +71,7 @@ private:
 public:
     /**
      * @brief   Takes all necessary parameters to inject the DLL into another process.
-     * 
+     *
      * @param process_name      Name of the process ("myProgram.exe")
      * @param dll_name          Path and name to the DLL ("C:/myDLLs/myDLL.dll").
      * @param poll_interval     Poll interval to refresh process list (in ms).
@@ -76,17 +79,24 @@ public:
      *                          Defaults to -1 indicating no timeout.
      */
     explicit DLLInject(
-        const std::string&& process_name,
-        const std::string&& dll_name,
-        const std::uint32_t poll_interval = 1000,
-        const std::uint32_t timeout = 0);
+        const String&& process_name,
+        const String&& dll_name,
+        const Uint32   poll_interval = 1000,
+        const Uint32   timeout       = 0);
 
     virtual ~DLLInject();
 
     /**
-     * @brief Starts the injection process (blocking function).
+     * @brief   Starts the injection process (blocking function).
+     *
+     * @return  Result of the complete injection process.
      */
-    void run();
+    bool run();
+
+    /**
+     * @return  Returns a structure of the information from the injected process.
+     */
+    ProcessInfo getProcessInfo() const;
 };
 
 #endif  // DLLINJECT_HPP

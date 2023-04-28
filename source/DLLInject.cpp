@@ -8,10 +8,10 @@
 static const char* LOGGER_NAME = "log_dll_inject";
 
 DLLInject::DLLInject(
-    const std::string&& process_name,
-    const std::string&& dll_name,
-    const std::uint32_t poll_interval,
-    const std::uint32_t timeout)
+    const String&& process_name,
+    const String&& dll_name,
+    const Uint32   poll_interval,
+    const uint32   timeout)
     : m_process_name(process_name)
     , m_dll_name(dll_name)
     , m_poll_interval(poll_interval)
@@ -31,8 +31,12 @@ DLLInject::~DLLInject()
     spdlog::get(LOGGER_NAME)->debug("[+] Stop Injector");
 }
 
-void DLLInject::run()
+// Public
+
+bool DLLInject::run()
 {
+    bool success = false;
+
     auto logger = spdlog::get(LOGGER_NAME);
 
     logger->debug(" +  Run Injector");
@@ -40,17 +44,26 @@ void DLLInject::run()
         if(openProcess())
             if(allocateDLLSpace())
                 if(injectDLL())
-                    startRemoteThread();
+                    success = startRemoteThread();
 
     logger->debug(" +  Finished Injector");
+
+    return success;
 }
+
+ProcessInfo DLLInject::getProcessInfo() const
+{
+    return m_info;
+}
+
+// Private
 
 bool DLLInject::findPID()
 {
     auto logger = spdlog::get(LOGGER_NAME);
 
     logger->debug(" +  Find PID");
-    std::uint32_t timer = 0;
+    Uint32 timer = 0;
     while(m_info.process_id == 0)
     {
         if(m_timeout > 0 && timer > m_timeout)
@@ -70,7 +83,7 @@ bool DLLInject::findPID()
         {
             do
             {
-                std::string process = procEntry.szExeFile;
+                String process = procEntry.szExeFile;
                 if(process == m_process_name)
                 {
                     m_info.process_id = procEntry.th32ProcessID;
