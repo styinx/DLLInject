@@ -11,7 +11,7 @@ DLLInject::DLLInject(
     const String&& process_name,
     const String&& dll_name,
     const Uint32   poll_interval,
-    const uint32   timeout)
+    const Uint32   timeout)
     : m_process_name(process_name)
     , m_dll_name(dll_name)
     , m_poll_interval(poll_interval)
