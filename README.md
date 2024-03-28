@@ -5,10 +5,8 @@ Inject a DLL into a windows process.
 ## Build
 
 ```
-mkdir build
-cd build
-cmake ..
-cmake --build . --config Release
+cmake -S . -B build
+cmake --build build
 ```
 
 ## How to use
@@ -18,8 +16,9 @@ cmake --build . --config Release
 
 int main(int argc, char** argv)
 {
-    DLLInject injector{"myprocess.exe", "path\\to_my_dll\\mydll.dll"};
-    injector.run();
+    if(injectDLL("your.exe", "your.dll", 5000, 1000) == InjectResult::SUCCESS)
+        printf("DLL was injected successfully.\n");
+
     return 0;
 }
 ```
